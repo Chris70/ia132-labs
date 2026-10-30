@@ -34,8 +34,9 @@ def test_taux_occupation_simple():
 
 
 # ── Les tickets du support ─────────────────────────────────────────────────
-def test_inc101_salle_sans_reservation():
-    assert taux_occupation([A, B], "B-204") == 0
+@pytest.mark.parametrize("reservations", [[], [A, B]])
+def test_inc101_salle_sans_reservation(reservations):
+    assert taux_occupation(reservations, "B-204") == 0
 
 
 def test_inc102_pas_de_doublon_entre_deux_pages():
@@ -48,13 +49,16 @@ def test_inc102_pas_de_doublon_entre_deux_pages():
 def test_inc103_reservations_bout_a_bout_autorisees():
     suivante = resa("A-101", "2026-11-02 10:00", "2026-11-02 11:00")
     assert peut_reserver([A], suivante)
+    assert peut_reserver([suivante], A)
 
 
-def test_inc104_arrondi_au_cent_superieur():
-    r = resa("A-101", "2026-11-02 09:00", "2026-11-02 10:30", tarif=31.15)
-    assert cout(r) == pytest.approx(46.73)
+@pytest.mark.parametrize("tarif, attendu", [(31.15, 46.73), (31.11, 46.67), (31.14, 46.71)])
+def test_inc104_arrondi_au_cent_superieur(tarif, attendu):
+    r = resa("A-101", "2026-11-02 09:00", "2026-11-02 10:30", tarif=tarif)
+    assert cout(r) == attendu
 
 
 def test_inc105_reservation_sur_deux_jours():
     r = resa("C-310", "2026-11-06 09:00", "2026-11-07 11:00")
     assert duree_heures(r) == 26
+    assert cout(r) == 520.0

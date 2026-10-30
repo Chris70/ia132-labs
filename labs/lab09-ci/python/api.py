@@ -28,7 +28,7 @@ def url_valide(url: object) -> bool:
 
 
 def nouveau_code() -> str:
-    return "".join(secrets.choice(ALPHABET) for _ in range(LONGUEUR_CODE))
+    return "".join(secrets.choice(ALPHABET) for _ in range(LONGUEUR_CODE - 1))
 
 
 class Depot:
